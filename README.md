@@ -10,7 +10,9 @@ Service APIs implemented:
 - Amazon SimpleDB
 - Amazon Mechanical Turk
 - Amazon CloudWatch (MON)
-- Amazon DynamoDB (ddb2) 
+- Amazon DynamoDB (ddb2)
+- Amazon Key Management Service (KMS)
+- Amazon DirectConnect
 
 All API functions have been implemented.  Not all functions have been thoroughly tested, so exercise care when integrating this library into production code.  Please send bug reports and patches.
 
