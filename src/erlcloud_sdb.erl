@@ -333,7 +333,7 @@ extract_item(Item) ->
     ].
 
 sdb_request(Config, Action, Params) ->
-    case sdb_request_with_retry(Config, Action, Params, 1, ?SDB_TIMEOUT, os:timestamp()) of
+    case sdb_request_with_retry(Config, Action, Params, 1, ?SDB_TIMEOUT, erlang:now()) of
         {ok, {Doc, Metadata}} ->
             {Doc, Metadata};
         {error, Error} ->
@@ -346,7 +346,7 @@ sdb_request_with_retry(Config, Action, Params, Try, Timeout, StartTime) ->
             {ok, {Doc, Metadata}};
         {error, {http_error, 503, _StatusLine, _Body}} ->
             %% Convert from microseconds to milliseconds
-            Waited = timer:now_diff(os:timestamp(), StartTime) / 1000.0,
+            Waited = timer:now_diff(erlang:now(), StartTime) / 1000.0,
             case Waited of
                 _TooLong when Waited > Timeout ->
                     {error, retry_timeout};
@@ -365,8 +365,8 @@ sdb_request_with_retry(Config, Action, Params, Try, Timeout, StartTime) ->
 
 sdb_request_safe(Config, Action, Params) ->
     QParams = [{"Action", Action}, {"Version", ?API_VERSION}|Params],
-    case erlcloud_aws:aws_request_xml2(post, Config#aws_config.sdb_host,
-                                       "/", QParams, Config) of
+    case erlcloud_aws:aws_request_xml4(post, Config#aws_config.sdb_host,
+                                       "/", QParams, "sdb", Config) of
         {ok, Doc} ->
             {ok, Doc, [{box_usage, erlcloud_xml:get_float("/*/ResponseMetadata/BoxUsage", Doc)}]};
         {error, Error} ->
